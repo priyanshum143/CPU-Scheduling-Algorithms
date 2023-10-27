@@ -1,33 +1,44 @@
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.PriorityQueue;
 
 public class FCFS {
-    private static final int START_TIME = 1;
+    // Function to find the idx of shortest job
+    private static int findMin(ArrayList<Integer> arrivalTimes){
+        int min = Integer.MAX_VALUE;
+        int idx = 0;
+        
+        int size = arrivalTimes.size();
+        for(int i=0; i<size; i++){
+            if(arrivalTimes.get(i) < min){
+                min = arrivalTimes.get(i);
+                idx = i;
+            }
+        }
+        return idx;
+    }
 
-    public static void AverageWaitTime(ArrayList<Integer> arrivalTimes, ArrayList<Integer> burstTimes){
+    public static info info(ArrayList<Integer> arrivalTimes, ArrayList<Integer> burstTimes){
+        int currTime = arrivalTimes.get(findMin(arrivalTimes));
+        double totalWaitingTime = 0;
+        double totalTurnAroundTime = 0;
+
         int numberOfProcesses = arrivalTimes.size();
-
-        HashMap<Integer, Integer> map = new HashMap<>();
         for(int i=0; i<numberOfProcesses; i++){
-            map.put(arrivalTimes.get(i), burstTimes.get(i));
-        }
+            int shortestJobIdx = findMin(arrivalTimes);
+            int arrivalTime = arrivalTimes.get(shortestJobIdx);
 
-        PriorityQueue<Integer> minHeap = new PriorityQueue<>(numberOfProcesses);
-        for(byte i=0; i<numberOfProcesses; i++){
-            minHeap.add(arrivalTimes.get(i));
-        }
-
-        int currTime = START_TIME;
-        int totalWaitingTime = 0;
-        while(!minHeap.isEmpty()){
-            int arrivalTime = minHeap.poll();
             int waitTime = currTime - arrivalTime;
             totalWaitingTime += waitTime;
-            currTime += map.get(arrivalTime);
+
+            currTime += burstTimes.get(shortestJobIdx);
+            totalTurnAroundTime += currTime - arrivalTime;
+
+            arrivalTimes.remove(shortestJobIdx);
+            burstTimes.remove(shortestJobIdx);
         }
 
-        double avgWaitTime = totalWaitingTime / numberOfProcesses;
-        System.out.println("Average Waiting Time = " + avgWaitTime);
+        info ans = new info();
+        ans.avgWaitTime = totalWaitingTime / numberOfProcesses;
+        ans.avgTurnAroundTime = totalTurnAroundTime / numberOfProcesses;
+        return ans;
     }
 }
